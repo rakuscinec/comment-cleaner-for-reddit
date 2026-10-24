@@ -52,7 +52,7 @@ GOOD TO KNOW
 • Switching accounts changes your Reddit login for the whole browser profile.
 • Comment Cleaner for Reddit is an independent project and is not affiliated with or endorsed by Reddit, Inc.
 
-Source code: https://github.com/rakuscinec/reddit-cleaner-extension
+Source code: https://github.com/rakuscinec/comment-cleaner-for-reddit
 Contact: schrapnel@gmail.com
 ```
 
@@ -69,8 +69,8 @@ Contact: schrapnel@gmail.com
 
 Screenshots show the real UI with fictional demo data (account `u/demo_user`).
 
-**Homepage URL:** https://github.com/rakuscinec/reddit-cleaner-extension
-**Support URL:** https://github.com/rakuscinec/reddit-cleaner-extension/issues
+**Homepage URL:** https://github.com/rakuscinec/comment-cleaner-for-reddit
+**Support URL:** https://github.com/rakuscinec/comment-cleaner-for-reddit/issues
 **Contact email** (Account tab, shown publicly on the listing): schrapnel@gmail.com
 
 ---
@@ -134,7 +134,7 @@ Certify all three statements:
 - [x] I do not use or transfer user data to determine creditworthiness or for lending purposes
 
 **Privacy policy URL:**
-https://github.com/rakuscinec/reddit-cleaner-extension/blob/main/PRIVACY.md
+https://github.com/rakuscinec/comment-cleaner-for-reddit/blob/main/PRIVACY.md
 
 ---
 

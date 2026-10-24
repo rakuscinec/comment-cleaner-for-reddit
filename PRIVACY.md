@@ -68,4 +68,4 @@ If this policy changes, the updated version will be published in this repository
 Questions or concerns about this policy or the extension:
 
 - Email: [schrapnel@gmail.com](mailto:schrapnel@gmail.com)
-- GitHub: <https://github.com/rakuscinec/reddit-cleaner-extension/issues>
+- GitHub: <https://github.com/rakuscinec/comment-cleaner-for-reddit/issues>

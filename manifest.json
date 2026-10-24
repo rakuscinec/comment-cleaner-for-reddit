@@ -4,7 +4,7 @@
   "short_name": "Comment Cleaner",
   "version": "1.0.0",
   "description": "Load your Reddit posts and comments, select them by date, then bulk overwrite and delete them.",
-  "homepage_url": "https://github.com/rakuscinec/reddit-cleaner-extension",
+  "homepage_url": "https://github.com/rakuscinec/comment-cleaner-for-reddit",
   "permissions": ["scripting", "tabs", "storage", "cookies"],
   "host_permissions": ["https://*.reddit.com/*"],
   "icons": {

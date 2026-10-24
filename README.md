@@ -44,7 +44,7 @@ Chromium-based browsers.
 
 1. Open `brave://extensions` (or `chrome://extensions`).
 2. Turn on “Developer mode” (top right).
-3. Click “Load unpacked” and select this folder (`reddit-cleaner-extension`).
+3. Click “Load unpacked” and select this folder (`comment-cleaner-for-reddit`).
 4. Click the extension icon in the toolbar — a new tab with the app opens.
 
 ## Usage
