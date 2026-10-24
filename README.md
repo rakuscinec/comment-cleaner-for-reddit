@@ -1,74 +1,100 @@
 # Reddit Cleaner
 
-Rozšírenie pre Brave/Chrome (Manifest V3), ktoré načíta všetky tvoje Reddit posty a komentáre,
-umožní ich zoradiť a vybrať podľa dátumu a hromadne ich **prepíše** a následne **zmaže**.
+A Brave/Chrome extension (Manifest V3) that loads all of your Reddit posts and comments, lets you
+sort and select them by date, and then bulk **overwrites** and **deletes** them.
 
-## Ako to funguje
+## How it works
 
-- UI beží ako samostatná stránka rozšírenia otvorená v novom tabe (nie popup, nie panel v stránke).
-- Na pozadí si udržiava jednu tichú kartu na `old.reddit.com`, cez ktorú volá oficiálne, no
-  needokumentované JSON API Reddit-u (`/user/<meno>/overview.json`, `/api/editusertext`,
-  `/api/del`) s tvojím prihlásením (cookies), presne tak, ako to robia webové stránky Redditu
-  samotné.
-- V pravom hornom rohu je tlačidlo s menom aktuálneho účtu (alebo „Neprihlásený“) – kliknutím sa
-  otvorí zoznam uložených účtov a možnosť „+ Prihlásiť nový účet“.
+- The UI runs as a standalone extension page opened in a new tab (not a popup, not a panel inside
+  a website).
+- In the background it keeps one quiet tab on `old.reddit.com` and uses it to call Reddit's
+  official but undocumented JSON API (`/user/<name>/overview.json`, `/api/editusertext`,
+  `/api/del`) with your login (cookies) — exactly the way Reddit's own web pages do.
+- The button in the top-right corner shows the current account (or “Not logged in”). Clicking it
+  opens the list of saved accounts and a “+ Log in to a new account” option.
 
-## Viac účtov (prepínanie bez odhlasovania)
+## Multiple accounts (switching without logging out)
 
-Reddit session je technicky viazaná na cookies pre `reddit.com` v danom prehliadačovom profile –
-extension preto pri pridaní účtu zachytí jeho cookies a uloží ich lokálne (`chrome.storage.local`,
-len v tvojom prehliadači). Pri prepnutí účtu potom staré cookies vymaže a nahradí uloženými pre
-zvolený účet – žiadne inkognito okná ani manuálne odhlasovanie netreba.
+A Reddit session is technically tied to the `reddit.com` cookies in the given browser profile, so
+when you add an account the extension captures its cookies and stores them locally
+(`chrome.storage.local`, only in your browser). When you switch accounts it removes the current
+cookies and restores the saved ones for the chosen account — no Incognito windows or manual
+logging out needed.
 
-1. Klikni na tlačidlo s menom účtu (vpravo hore) → „+ Prihlásiť nový účet“.
-2. Otvorí sa nová karta na prihlásenie na Reddit — prihlás sa tam bežne (heslo zadávaš priamo na
-   reddit.com, nikdy nie do rozšírenia). Extension prihlásenie automaticky rozpozná (kontroluje
-   každé 2 sekundy), kartu potom sama zatvorí a účet uloží do zoznamu.
-3. Pre ďalší účet zopakuj krok 1–2 (medzitým sa vždy najprv odhlás z pôvodného účtu na Reddite
-   priamo v tej prihlasovacej karte, aby sa zachytil naozaj nový účet).
-4. Kedykoľvek neskôr prepneš účet jednoducho kliknutím na jeho meno v zozname — extension prehodí
-   cookies a znova načíta identitu.
+1. Click the account button (top right) → “+ Log in to a new account”.
+2. A new tab opens for logging in to Reddit — log in as usual (you type your password directly on
+   reddit.com, never into the extension). The extension detects the login automatically (it
+   checks every 2 seconds), closes the tab and saves the account to the list.
+3. For another account repeat steps 1–2.
+4. Later, switch accounts simply by clicking a name in the list — the extension swaps the cookies
+   and reloads the identity.
 
-**Dôležité:** prepnutie účtu mení Reddit prihlásenie pre **celý prehliadač** (daný profil/okno),
-nielen v rámci rozšírenia — ak máš inde otvorenú kartu s reddit.com, aj tá sa po prepnutí bude
-tváriť ako prihlásená pod novo zvoleným účtom.
+**Important:** switching accounts changes the Reddit login for the **whole browser** (that
+profile/window), not just inside the extension — if you have reddit.com open in another tab, it
+will also act as the newly selected account after switching.
 
-## Inštalácia (Brave aj Chrome)
+## Installation
 
-1. Otvor `brave://extensions` (alebo `chrome://extensions`).
-2. Zapni „Developer mode“ / „Režim vývojára“ (vpravo hore).
-3. Klikni „Load unpacked“ / „Načítať rozbalené“ a vyber tento priečinok
-   (`reddit-cleaner-extension`).
-4. Klikni na ikonu rozšírenia v paneli nástrojov – otvorí sa nová karta s aplikáciou.
+### From the Chrome Web Store
 
-## Použitie
+Install it from the store listing (once published) — works in Chrome, Brave and other
+Chromium-based browsers.
 
-1. Vyber/prihlás účet vpravo hore (pozri „Viac účtov“) a klikni
-   „Načítať moje posty a komentáre“.
-2. Zoraď podľa dátumu, vyber položky pomocou:
-   - rýchlych tlačidiel (staršie ako hodina / deň / týždeň / mesiac),
-   - „Posledných N položiek“,
-   - dátumového rozsahu od–do,
-   - „Invertovať výber“,
-   - alebo ručne cez checkboxy / „Vybrať všetko“.
-3. Priprav si text, ktorým sa má obsah prepísať (predvolené `.`).
-4. Klikni „Prepísať a zmazať vybrané“ a potvrď v dialógu.
-5. Rozšírenie postupne (s pauzami kvôli rate-limitom Redditu) prepíše a zmaže vybrané položky
-   a loguje priebeh dole na stránke.
+### From source (Brave or Chrome)
 
-## Dôležité upozornenia
+1. Open `brave://extensions` (or `chrome://extensions`).
+2. Turn on “Developer mode” (top right).
+3. Click “Load unpacked” and select this folder (`reddit-cleaner-extension`).
+4. Click the extension icon in the toolbar — a new tab with the app opens.
 
-- **Nevratné.** Po prepísaní a zmazaní sa pôvodný obsah nedá obnoviť.
-- **Linkové/obrázkové posty**: Reddit API neumožňuje upraviť telo/titulok takéhoto postu, takže
-  sa iba rovno zmaže (bez prepísania) – rozšírenie to označí v logu.
-- **Rate limity**: medzi jednotlivými akciami sú úmyselné pauzy (~1 s). Pri stovkách položiek to
-  môže trvať dlhšie – nechaj kartu otvorenú a nezatváraj tichý tab na `old.reddit.com`.
-- Ide o neoficiálne (ale bežne používané, napr. podobnými open-source nástrojmi) využitie
-  verejného Reddit JSON API cez tvoje vlastné prihlásenie. Reddit môže správanie API kedykoľvek
-  zmeniť, čím sa nástroj môže rozbiť.
-- Odporúčam prvé použitie vyskúšať na malej vzorke (napr. 2–3 staré komentáre) pred hromadným
-  mazaním.
-- **Uložené cookies účtov** obsahujú prihlasovacie session tokeny — sú uložené len lokálne v
-  `chrome.storage.local` tohto rozšírenia (nikam sa neposielajú), ale kto má prístup k tvojmu
-  prehliadaču/profilu, má tým pádom prístup aj k prihláseniu na uložené účty. Na zdieľanom
-  počítači zváž po použití účty needostupné (napr. cez „Log out“ priamo na Reddite).
+## Usage
+
+1. Choose/log in to an account in the top right (see “Multiple accounts”) and click
+   “Load my posts and comments”.
+2. Sort by date and select items using:
+   - quick buttons (older than an hour / day / week / month),
+   - “Latest N items”,
+   - a from–to date range,
+   - “Invert selection”,
+   - or manually via the checkboxes / “Select all”.
+3. Set the text the content should be overwritten with (default `.`).
+4. Click “Overwrite and delete selected” and confirm the dialog.
+5. The extension overwrites and deletes the selected items one by one (with pauses because of
+   Reddit's rate limits) and logs the progress at the bottom of the page.
+
+## Important notes
+
+- **Irreversible.** Once overwritten and deleted, the original content cannot be restored.
+- **Link/image posts**: the Reddit API does not allow editing the body/title of such posts, so
+  they are only deleted (without overwriting) — the extension notes this in the log.
+- **Rate limits**: there are deliberate pauses (~1 s) between actions. With hundreds of items it
+  can take a while — keep the tab open and don't close the quiet `old.reddit.com` tab.
+- This is an unofficial (but common, e.g. by similar open-source tools) use of Reddit's public
+  JSON API through your own login. Reddit may change the API's behaviour at any time, which can
+  break the tool.
+- Try it on a small sample first (e.g. 2–3 old comments) before deleting in bulk.
+- **Saved account cookies** contain login session tokens — they are stored only locally in this
+  extension's `chrome.storage.local` (never sent anywhere), but anyone with access to your browser
+  profile also has access to the saved accounts. On a shared computer consider logging those
+  accounts out after use (e.g. via “Log out” directly on Reddit).
+
+## Privacy
+
+See [PRIVACY.md](PRIVACY.md). In short: no analytics, no servers of our own — the extension only
+talks to reddit.com and keeps everything in your browser.
+
+## Building the Chrome Web Store package
+
+```sh
+./scripts/build.sh
+```
+
+Creates `dist/reddit-cleaner-<version>.zip` containing only the files the extension needs.
+Store listing texts, permission justifications and graphics live in [`store/`](store/).
+
+Icons are rendered from `icons/icon.svg` (48/128 px) and `icons/icon-small.svg` (16/32 px).
+
+## Disclaimer
+
+Reddit Cleaner is an independent project and is not affiliated with, endorsed or sponsored by
+Reddit, Inc.

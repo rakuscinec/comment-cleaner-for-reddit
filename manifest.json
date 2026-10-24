@@ -1,12 +1,24 @@
 {
   "manifest_version": 3,
-  "name": "Reddit Cleaner – prepis a hromadné zmazanie",
+  "name": "Reddit Cleaner – Bulk Overwrite & Delete",
+  "short_name": "Reddit Cleaner",
   "version": "1.0.0",
-  "description": "Načíta tvoje Reddit posty a komentáre, umožní výber podľa dátumu a hromadné prepísanie + zmazanie.",
+  "description": "Load your Reddit posts and comments, select them by date, then bulk overwrite and delete them.",
+  "homepage_url": "https://github.com/rakuscinec/reddit-cleaner-extension",
   "permissions": ["scripting", "tabs", "storage", "cookies"],
   "host_permissions": ["https://*.reddit.com/*"],
+  "icons": {
+    "16": "icons/icon16.png",
+    "32": "icons/icon32.png",
+    "48": "icons/icon48.png",
+    "128": "icons/icon128.png"
+  },
   "action": {
-    "default_title": "Otvoriť Reddit Cleaner",
-    "default_popup": "popup.html"
+    "default_title": "Open Reddit Cleaner",
+    "default_popup": "popup.html",
+    "default_icon": {
+      "16": "icons/icon16.png",
+      "32": "icons/icon32.png"
+    }
   }
 }

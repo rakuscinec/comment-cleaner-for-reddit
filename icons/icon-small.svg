@@ -1,0 +1,6 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 16 16" width="16" height="16">
+  <!-- Simplified artwork for 16/32 px toolbar sizes -->
+  <rect x="0.5" y="0.5" width="15" height="15" rx="3.5" fill="#ff4500"/>
+  <path d="M3.5 3.5h9a1 1 0 0 1 1 1v5a1 1 0 0 1-1 1H7l-2.5 2v-2h-1a1 1 0 0 1-1-1v-5a1 1 0 0 1 1-1z" fill="#fff"/>
+  <path d="M6 5.5l4 3M10 5.5l-4 3" stroke="#ff4500" stroke-width="1.4" stroke-linecap="round"/>
+</svg>

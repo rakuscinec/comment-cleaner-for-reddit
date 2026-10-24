@@ -1,0 +1,12 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 128 128" width="128" height="128">
+  <!-- Chrome Web Store guideline: 96x96 artwork centred in a 128x128 canvas -->
+  <rect x="16" y="16" width="96" height="96" rx="22" fill="#ff4500"/>
+  <!-- speech bubble -->
+  <path d="M36 38h56a8 8 0 0 1 8 8v28a8 8 0 0 1-8 8H60l-14 12v-12h-10a8 8 0 0 1-8-8V46a8 8 0 0 1 8-8z" fill="#fff"/>
+  <!-- overwritten text lines -->
+  <rect x="40" y="50" width="48" height="6" rx="3" fill="#ffc2ad"/>
+  <rect x="40" y="63" width="32" height="6" rx="3" fill="#ffc2ad"/>
+  <!-- delete mark -->
+  <circle cx="92" cy="88" r="17" fill="#0f1115"/>
+  <path d="M85 81l14 14M99 81l-14 14" stroke="#fff" stroke-width="5" stroke-linecap="round"/>
+</svg>

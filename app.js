@@ -1,22 +1,22 @@
 'use strict';
 
-/* ---------- stav ---------- */
+/* ---------- state ---------- */
 let bridgeTabId = null;
 let identity = null;      // { name, modhash }
-let items = [];           // zoznam postov/komentárov
+let items = [];           // list of posts/comments
 let sortKey = 'created';
 let sortDesc = true;
 let processing = false;
 
-/* ---------- pomocné ---------- */
+/* ---------- helpers ---------- */
 function sleep(ms) { return new Promise(r => setTimeout(r, ms)); }
 
 function pad2(n) { return String(n).padStart(2, '0'); }
 
-// Český formát: d.m.rrrr HH:MM:SS
+// Local time as YYYY-MM-DD HH:MM:SS
 function formatDateTime(ts) {
   const d = new Date(ts);
-  return `${d.getDate()}.${d.getMonth() + 1}.${d.getFullYear()} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
+  return `${d.getFullYear()}-${pad2(d.getMonth() + 1)}-${pad2(d.getDate())} ${pad2(d.getHours())}:${pad2(d.getMinutes())}:${pad2(d.getSeconds())}`;
 }
 
 function log(msg) {
@@ -71,7 +71,7 @@ async function exec(tabId, func, args) {
   return result;
 }
 
-/* ---------- správa účtov cez cookies ---------- */
+/* ---------- account management via cookies ---------- */
 const REDDIT_COOKIE_DOMAIN = 'reddit.com';
 let pendingLoginTabId = null;
 let pendingLoginPoll = null;
@@ -115,7 +115,7 @@ async function activateAccount(username) {
   const acc = accounts[username];
   if (!acc) return;
 
-  setStatus('Prepínam na účet u/' + username + '...');
+  setStatus('Switching to account u/' + username + '...');
   await clearRedditCookies();
   await restoreCookies(acc.cookies);
   await chrome.storage.local.set({ activeAccount: username });
@@ -130,11 +130,11 @@ async function activateAccount(username) {
   try {
     await ensureBridgeTab();
     identity = await exec(bridgeTabId, __rc_getIdentity);
-    log('Prepnuté na účet u/' + identity.name + '.');
-    setStatus('Aktívny účet: u/' + identity.name);
+    log('Switched to account u/' + identity.name + '.');
+    setStatus('Active account: u/' + identity.name);
   } catch (e) {
-    log('CHYBA pri prepnutí na u/' + username + ': ' + e.message);
-    setStatus('Chyba pri prepnutí účtu: ' + e.message);
+    log('ERROR switching to u/' + username + ': ' + e.message);
+    setStatus('Error switching account: ' + e.message);
   }
   await refreshAccountUI();
 }
@@ -156,37 +156,37 @@ function cancelPendingLogin(reason) {
     pendingLoginTabId = null;
   }
   setAddAccountUIWaiting(false);
-  setStatus(reason || 'Čakanie na prihlásenie zrušené.');
+  setStatus(reason || 'Stopped waiting for login.');
 }
 
 async function addAccount() {
   if (pendingLoginTabId) return;
 
   setAddAccountUIWaiting(true);
-  setStatus('Odhlasujem aktuálny účet na Reddite, aby šlo prihlásiť nový...');
-  // Bez vyčistenia cookies by Reddit na /login presmeroval späť na už prihláseného používateľa.
+  setStatus('Logging out of the current Reddit account so a new one can log in...');
+  // Without clearing cookies, Reddit's /login would redirect back to the already logged-in user.
   await clearRedditCookies();
   identity = null;
   bridgeTabId = null;
   await refreshAccountUI();
 
-  // Kontrolu identity robíme cez samostatnú old.reddit.com kartu (bridge), nie cez prihlasovaciu
-  // kartu na www.reddit.com — tá má iný tvar API a /api/me.json na nej nemusí fungovať rovnako.
+  // Identity is checked via the separate old.reddit.com (bridge) tab, not the www.reddit.com login
+  // tab — that one has a different API shape and /api/me.json may not behave the same there.
   await ensureBridgeTab();
 
   const tab = await chrome.tabs.create({ url: 'https://www.reddit.com/login', active: true });
   pendingLoginTabId = tab.id;
-  log('Otvorená karta na prihlásenie na Reddit (tab ' + tab.id + '). Prihlás sa PRESNE v nej — účet sa zachytí automaticky.');
-  setStatus('Čakám, kým sa prihlásiš v novootvorenej karte... (pokus 0)');
+  log('Opened a Reddit login tab (tab ' + tab.id + '). Log in EXACTLY in that tab — the account will be captured automatically.');
+  setStatus('Waiting for you to log in in the newly opened tab... (attempt 0)');
 
   let attempts = 0;
-  const maxAttempts = 150; // ~5 min pri intervale 2 s
+  const maxAttempts = 150; // ~5 min at a 2 s interval
 
   pendingLoginPoll = setInterval(async () => {
     attempts++;
     const stillOpen = await chrome.tabs.get(pendingLoginTabId).catch(() => null);
     if (!stillOpen) {
-      cancelPendingLogin('Karta na prihlásenie bola zatvorená, zrušené.');
+      cancelPendingLogin('The login tab was closed, cancelled.');
       return;
     }
     try {
@@ -200,18 +200,18 @@ async function addAccount() {
       await chrome.tabs.remove(pendingLoginTabId).catch(() => {});
       pendingLoginTabId = null;
       setAddAccountUIWaiting(false);
-      log('Uložený nový účet: u/' + id.name);
-      setStatus('Účet u/' + id.name + ' uložený a aktivovaný.');
+      log('Saved new account: u/' + id.name);
+      setStatus('Account u/' + id.name + ' saved and activated.');
       await refreshAccountUI();
     } catch (e) {
       if (attempts >= maxAttempts) {
-        cancelPendingLogin('Vypršal čas na prihlásenie (5 min). Naposledy: ' + e.message);
-        log('Prihlásenie sa nepodarilo zachytiť do 5 minút. Posledná chyba: ' + e.message);
+        cancelPendingLogin('Login timed out (5 min). Last error: ' + e.message);
+        log('Could not detect a login within 5 minutes. Last error: ' + e.message);
         return;
       }
-      setStatus('Čakám na prihlásenie v novej karte... (pokus ' + attempts + '/' + maxAttempts + ', zatiaľ neprihlásený)');
+      setStatus('Waiting for login in the new tab... (attempt ' + attempts + '/' + maxAttempts + ', not logged in yet)');
       if (attempts % 5 === 0) {
-        log('Stále čakám na prihlásenie (pokus ' + attempts + '). Dôvod: ' + e.message);
+        log('Still waiting for login (attempt ' + attempts + '). Reason: ' + e.message);
       }
     }
   }, 2000);
@@ -227,7 +227,7 @@ async function refreshAccountUI() {
   if (!names.length) {
     const empty = document.createElement('div');
     empty.className = 'account-empty';
-    empty.textContent = 'Zatiaľ žiadny uložený účet.';
+    empty.textContent = 'No saved accounts yet.';
     list.appendChild(empty);
   } else {
     for (const name of names) {
@@ -239,16 +239,16 @@ async function refreshAccountUI() {
     }
   }
 
-  document.getElementById('identityBtn').textContent = (currentName ? 'u/' + currentName : 'Neprihlásený') + ' ▾';
+  document.getElementById('identityBtn').textContent = (currentName ? 'u/' + currentName : 'Not logged in') + ' ▾';
 }
 
-/* ---------- funkcie spúšťané v kontexte reddit tabu ---------- */
+/* ---------- functions executed in the context of the reddit tab ---------- */
 async function __rc_getIdentity() {
   const res = await fetch('/api/me.json', { credentials: 'include' });
   if (!res.ok) throw new Error('HTTP ' + res.status);
   const data = await res.json();
   if (!data || !data.data || !data.data.name) {
-    throw new Error('Nie si prihlásený na Reddite (v tabe old.reddit.com).');
+    throw new Error('You are not logged in to Reddit (in the old.reddit.com tab).');
   }
   return { name: data.data.name, modhash: data.data.modhash || '' };
 }
@@ -289,7 +289,7 @@ async function __rc_deleteItem(fullname, modhash) {
   return true;
 }
 
-/* ---------- načítanie obsahu ---------- */
+/* ---------- loading content ---------- */
 function mapChild(child) {
   const d = child.data;
   const isComment = child.kind === 't1';
@@ -312,11 +312,11 @@ async function loadAll() {
   const loadBtn = document.getElementById('loadBtn');
   loadBtn.disabled = true;
   try {
-    setStatus('Pripájam sa na Reddit (old.reddit.com)...');
+    setStatus('Connecting to Reddit (old.reddit.com)...');
     await ensureBridgeTab();
     identity = await exec(bridgeTabId, __rc_getIdentity);
     await refreshAccountUI();
-    setStatus('Načítavam obsah...');
+    setStatus('Loading content...');
 
     items = [];
     let after = null;
@@ -325,7 +325,7 @@ async function loadAll() {
       const page = await exec(bridgeTabId, __rc_fetchPage, [identity.name, after]);
       for (const child of page.children) items.push(mapChild(child));
       after = page.after;
-      setStatus('Načítaných položiek: ' + items.length);
+      setStatus('Items loaded: ' + items.length);
       guard++;
       if (after) await sleep(700);
     } while (after && guard < 200);
@@ -335,19 +335,19 @@ async function loadAll() {
     document.getElementById('filterRow').hidden = false;
     document.getElementById('replaceRow').hidden = false;
     document.getElementById('actionRow').hidden = false;
-    setStatus('Hotovo. Načítaných ' + items.length + ' položiek.');
-    log('Načítaných ' + items.length + ' postov a komentárov pre u/' + identity.name + '.');
+    setStatus('Done. Loaded ' + items.length + ' items.');
+    log('Loaded ' + items.length + ' posts and comments for u/' + identity.name + '.');
   } catch (e) {
-    setStatus('Chyba: ' + e.message);
-    log('CHYBA pri načítaní: ' + e.message);
+    setStatus('Error: ' + e.message);
+    log('ERROR while loading: ' + e.message);
   } finally {
     loadBtn.disabled = false;
   }
 }
 
-/* ---------- triedenie a render ---------- */
+/* ---------- sorting and rendering ---------- */
 const SORT_ACCESSORS = {
-  kind: item => item.kind === 't1' ? 'komentár' : 'post',
+  kind: item => item.kind === 't1' ? 'comment' : 'post',
   created: item => item.created,
   subreddit: item => item.subreddit.toLowerCase(),
   score: item => item.score,
@@ -406,7 +406,7 @@ function renderTable() {
       const tdType = document.createElement('td');
       const badge = document.createElement('span');
       badge.className = 'badge ' + (item.kind === 't1' ? 'comment' : 'post');
-      badge.textContent = item.kind === 't1' ? 'komentár' : 'post';
+      badge.textContent = item.kind === 't1' ? 'comment' : 'post';
       tdType.appendChild(badge);
 
       const tdDate = document.createElement('td');
@@ -426,7 +426,7 @@ function renderTable() {
       snippetLink.target = '_blank';
       snippetLink.rel = 'noopener noreferrer';
       snippetLink.title = item.snippet;
-      snippetLink.textContent = item.snippet || '(bez textu)';
+      snippetLink.textContent = item.snippet || '(no text)';
       tdSnippet.appendChild(snippetLink);
 
       const tdStatus = document.createElement('td');
@@ -443,22 +443,22 @@ function renderTable() {
 
 function statusLabel(s) {
   switch (s) {
-    case 'pending': return 'čaká';
-    case 'processing': return 'spracúva sa...';
-    case 'done': return 'zmazané';
-    case 'error': return 'chyba';
-    case 'skipped': return 'preskočené';
+    case 'pending': return 'pending';
+    case 'processing': return 'processing...';
+    case 'done': return 'deleted';
+    case 'error': return 'error';
+    case 'skipped': return 'skipped';
     default: return s;
   }
 }
 
 function updateSelectedCount() {
   const n = items.filter(i => i.selected && i.status === 'pending').length;
-  document.getElementById('selectedCount').textContent = 'Vybraných: ' + n;
+  document.getElementById('selectedCount').textContent = 'Selected: ' + n;
   document.getElementById('deleteBtn').disabled = n === 0 || processing;
 }
 
-/* ---------- výberové nástroje ---------- */
+/* ---------- selection tools ---------- */
 function selectAll(v) {
   items.forEach(i => { if (i.status === 'pending') i.selected = v; });
   renderTable();
@@ -490,11 +490,11 @@ function selectDateRange(fromTs, toTs) {
   renderTable();
 }
 
-/* ---------- prepis + zmazanie ---------- */
+/* ---------- overwrite + delete ---------- */
 async function processSelected(replacementText) {
   processing = true;
   const selected = items.filter(i => i.selected && i.status === 'pending');
-  log('Spúšťam spracovanie ' + selected.length + ' položiek. Text na prepis: "' + replacementText + '"');
+  log('Starting to process ' + selected.length + ' items. Replacement text: "' + replacementText + '"');
 
   for (const item of selected) {
     item.status = 'processing';
@@ -506,21 +506,21 @@ async function processSelected(replacementText) {
       }
       await exec(bridgeTabId, __rc_deleteItem, [item.fullname, identity.modhash]);
       item.status = 'done';
-      log('OK: ' + (item.kind === 't1' ? 'komentár' : 'post') + ' v r/' + item.subreddit + ' (' + formatDateTime(item.created) + ') zmazaný.');
+      log('OK: ' + (item.kind === 't1' ? 'comment' : 'post') + ' in r/' + item.subreddit + ' (' + formatDateTime(item.created) + ') deleted.');
     } catch (e) {
       item.status = 'error';
-      log('CHYBA (' + item.fullname + '): ' + e.message);
+      log('ERROR (' + item.fullname + '): ' + e.message);
     }
     renderTable();
     await sleep(1100);
   }
 
   processing = false;
-  log('Spracovanie dokončené.');
-  setStatus('Spracovanie dokončené.');
+  log('Processing finished.');
+  setStatus('Processing finished.');
 }
 
-/* ---------- UI eventy ---------- */
+/* ---------- UI events ---------- */
 document.getElementById('loadBtn').addEventListener('click', loadAll);
 
 document.querySelectorAll('#itemsTable thead th[data-sort-key]').forEach(th => {
@@ -561,14 +561,14 @@ document.getElementById('invertSelBtn').addEventListener('click', invertSelectio
 
 document.getElementById('masterCheck').addEventListener('change', (e) => selectAll(e.target.checked));
 
-/* potvrdzovací modál */
+/* confirmation modal */
 const modal = document.getElementById('confirmModal');
 const confirmOk = document.getElementById('confirmOk');
 
 document.getElementById('deleteBtn').addEventListener('click', () => {
   const n = items.filter(i => i.selected && i.status === 'pending').length;
   if (!n) return;
-  document.getElementById('confirmText').textContent = `Naozaj chceš prepísať a natrvalo zmazať ${n} položiek?`;
+  document.getElementById('confirmText').textContent = `Do you really want to overwrite and permanently delete ${n} item${n === 1 ? '' : 's'}?`;
   modal.hidden = false;
   confirmOk.focus();
 });
@@ -599,7 +599,7 @@ document.addEventListener('click', (e) => {
 });
 
 document.getElementById('addAccountBtn').addEventListener('click', addAccount);
-document.getElementById('cancelLoginBtn').addEventListener('click', () => cancelPendingLogin('Čakanie na prihlásenie zrušené.'));
+document.getElementById('cancelLoginBtn').addEventListener('click', () => cancelPendingLogin('Stopped waiting for login.'));
 
 renderTable();
 refreshAccountUI();
