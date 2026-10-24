@@ -1,4 +1,4 @@
-# Reddit Cleaner
+# Comment Cleaner for Reddit
 
 A Brave/Chrome extension (Manifest V3) that loads all of your Reddit posts and comments, lets you
 sort and select them by date, and then bulk **overwrites** and **deletes** them.
@@ -89,12 +89,12 @@ talks to reddit.com and keeps everything in your browser.
 ./scripts/build.sh
 ```
 
-Creates `dist/reddit-cleaner-<version>.zip` containing only the files the extension needs.
+Creates `dist/comment-cleaner-for-reddit-<version>.zip` containing only the files the extension needs.
 Store listing texts, permission justifications and graphics live in [`store/`](store/).
 
 Icons are rendered from `icons/icon.svg` (48/128 px) and `icons/icon-small.svg` (16/32 px).
 
 ## Disclaimer
 
-Reddit Cleaner is an independent project and is not affiliated with, endorsed or sponsored by
+Comment Cleaner for Reddit is an independent project and is not affiliated with, endorsed or sponsored by
 Reddit, Inc.

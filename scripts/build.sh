@@ -1,10 +1,10 @@
 #!/bin/sh
-# Builds the Chrome Web Store upload package: dist/reddit-cleaner-<version>.zip
+# Builds the Chrome Web Store upload package: dist/comment-cleaner-for-reddit-<version>.zip
 set -eu
 cd "$(dirname "$0")/.."
 
 VERSION=$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' manifest.json)
-OUT="dist/reddit-cleaner-$VERSION.zip"
+OUT="dist/comment-cleaner-for-reddit-$VERSION.zip"
 
 mkdir -p dist
 rm -f "$OUT"

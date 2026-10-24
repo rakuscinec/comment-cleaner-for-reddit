@@ -1,13 +1,13 @@
-# Chrome Web Store submission — Reddit Cleaner
+# Chrome Web Store submission — Comment Cleaner for Reddit
 
 Everything needed to fill in the Chrome Web Store Developer Dashboard, tab by tab.
-Upload package: `dist/reddit-cleaner-<version>.zip` (build with `./scripts/build.sh`).
+Upload package: `dist/comment-cleaner-for-reddit-<version>.zip` (build with `./scripts/build.sh`).
 
 ---
 
 ## Store listing tab
 
-**Name** (from manifest): Reddit Cleaner – Bulk Overwrite & Delete
+**Name** (from manifest): Comment Cleaner for Reddit
 
 **Summary** (manifest `description`, max 132 chars):
 
@@ -22,10 +22,10 @@ Upload package: `dist/reddit-cleaner-<version>.zip` (build with `./scripts/build
 ```
 Clean up your Reddit history in a few clicks.
 
-Reddit Cleaner loads every post and comment from your Reddit account into one sortable table, lets you pick exactly what should go, and then overwrites and deletes the selected items for you — one by one, respecting Reddit's rate limits.
+Comment Cleaner for Reddit loads every post and comment from your Reddit account into one sortable table, lets you pick exactly what should go, and then overwrites and deletes the selected items for you — one by one, respecting Reddit's rate limits.
 
 WHY OVERWRITE FIRST?
-Deleting a comment on Reddit removes your name, but copies of the original text can live on in third-party archives and caches. Reddit Cleaner first edits the content to a text of your choice (a single "." by default) and only then deletes it, so the last version Reddit stores is the overwritten one.
+Deleting a comment on Reddit removes your name, but copies of the original text can live on in third-party archives and caches. Comment Cleaner for Reddit first edits the content to a text of your choice (a single "." by default) and only then deletes it, so the last version Reddit stores is the overwritten one.
 
 FEATURES
 • Loads all your posts and comments (with subreddit, score, date and a content preview)
@@ -50,9 +50,10 @@ GOOD TO KNOW
 • Deletion is permanent — try it on a few old comments first.
 • Link and image posts cannot be edited through Reddit, so they are deleted without overwriting.
 • Switching accounts changes your Reddit login for the whole browser profile.
-• Reddit Cleaner is an independent project and is not affiliated with or endorsed by Reddit, Inc.
+• Comment Cleaner for Reddit is an independent project and is not affiliated with or endorsed by Reddit, Inc.
 
 Source code: https://github.com/rakuscinec/reddit-cleaner-extension
+Contact: schrapnel@gmail.com
 ```
 
 **Graphics** (in `store/assets/`):
@@ -70,6 +71,7 @@ Screenshots show the real UI with fictional demo data (account `u/demo_user`).
 
 **Homepage URL:** https://github.com/rakuscinec/reddit-cleaner-extension
 **Support URL:** https://github.com/rakuscinec/reddit-cleaner-extension/issues
+**Contact email** (Account tab, shown publicly on the listing): schrapnel@gmail.com
 
 ---
 
@@ -78,7 +80,7 @@ Screenshots show the real UI with fictional demo data (account `u/demo_user`).
 **Single purpose description:**
 
 ```
-Reddit Cleaner lets users bulk overwrite and delete their own Reddit posts and comments. It loads the signed-in user's posts and comments from reddit.com, lets the user select items (e.g. by date), and then edits and deletes the selected items on reddit.com. It can also store and switch between the user's Reddit login sessions so the user can clean up several of their own accounts.
+Comment Cleaner for Reddit lets users bulk overwrite and delete their own Reddit posts and comments. It loads the signed-in user's posts and comments from reddit.com, lets the user select items (e.g. by date), and then edits and deletes the selected items on reddit.com. It can also store and switch between the user's Reddit login sessions so the user can clean up several of their own accounts.
 ```
 
 ### Permission justifications

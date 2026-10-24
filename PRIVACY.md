@@ -1,9 +1,9 @@
-# Privacy Policy — Reddit Cleaner
+# Privacy Policy — Comment Cleaner for Reddit
 
 _Last updated: 25 October 2026_
 
-Reddit Cleaner (“the extension”) is a browser extension that helps you overwrite and delete your
-own Reddit posts and comments. This policy explains what data the extension handles and how.
+Comment Cleaner for Reddit (“the extension”) is a browser extension that helps you overwrite and
+delete your own Reddit posts and comments. This policy explains what data the extension handles and how.
 
 ## Summary
 
@@ -65,5 +65,7 @@ If this policy changes, the updated version will be published in this repository
 
 ## Contact
 
-Questions or concerns: open an issue at
-<https://github.com/rakuscinec/reddit-cleaner-extension/issues>.
+Questions or concerns about this policy or the extension:
+
+- Email: [schrapnel@gmail.com](mailto:schrapnel@gmail.com)
+- GitHub: <https://github.com/rakuscinec/reddit-cleaner-extension/issues>
