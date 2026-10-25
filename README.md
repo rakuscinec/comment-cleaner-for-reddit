@@ -1,100 +1,103 @@
 # Comment Cleaner for Reddit
 
-A Brave/Chrome extension (Manifest V3) that loads all of your Reddit posts and comments, lets you
-sort and select them by date, and then bulk **overwrites** and **deletes** them.
+<img src="extension/icons/icon128.png" width="64" align="right" alt="">
+
+A Chrome / Brave extension (Manifest V3) that loads your Reddit posts and comments, lets you sort and
+select them by date, and then bulk **overwrites** and **deletes** them.
+
+![Screenshot](store/screenshot-1.png)
+
+- [Privacy policy](https://rakuscinec.github.io/comment-cleaner-for-reddit/privacy-policy.html)
+- [Report a problem](https://github.com/rakuscinec/comment-cleaner-for-reddit/issues)
+
+## Features
+
+- Loads your posts and comments into one sortable table (type, date, subreddit, score, content, status)
+- Deep scan that reaches items beyond Reddit's 1000-item listing limit
+- Overwrites comments and text posts with a text of your choice before deleting them
+- Progress bar with an estimate of the remaining time, both while loading and while deleting
+- Quick selection: older than 1 hour / day / week / month, latest N, date range, select all, invert
+- Log of every action, including errors
+- Optional switching between several Reddit accounts without signing out
 
 ## How it works
 
-- The UI runs as a standalone extension page opened in a new tab (not a popup, not a panel inside
-  a website).
-- In the background it keeps one quiet tab on `old.reddit.com` and uses it to call Reddit's
-  official but undocumented JSON API (`/user/<name>/overview.json`, `/api/editusertext`,
-  `/api/del`) with your login (cookies) — exactly the way Reddit's own web pages do.
-- The button in the top-right corner shows the current account (or “Not logged in”). Clicking it
-  opens the list of saved accounts and a “+ Log in to a new account” option.
+- The UI runs as a standalone extension page opened in a new tab. Right after it opens, it checks
+  whether you are signed in to Reddit and shows the account in the top right ("Not signed in"
+  otherwise).
+- In the background it keeps one quiet tab on `old.reddit.com` and, through it, calls the same
+  undocumented JSON API that Reddit's own web pages use, with your own sign-in. The requests run in
+  the page's main world (`chrome.scripting.executeScript` with `world: 'MAIN'`), so they are exactly
+  like the website's own:
+  - `GET /api/me.json` – username and the `modhash` anti-forgery token,
+  - `GET /user/<name>/comments.json` and `/user/<name>/submitted.json` – your comments and posts,
+  - `POST /api/editusertext` – overwrites a comment or text post,
+  - `POST /api/del` – deletes it.
+- **The 1000-item limit.** Reddit returns at most about 1000 items (10 pages of 100) per listing and
+  sort order. The extension first reads your comments and posts sorted by `new` (both in parallel).
+  If a list reaches the limit and deep scan is on, it also reads that list sorted by `top` and
+  `controversial` (all time and past year) and `hot`. Each sort order has its own ~1000-item window,
+  so older items that are not among the newest 1000 often appear in one of them. Results are merged
+  and de-duplicated by Reddit's fullname (`t1_…` / `t3_…`). Items that are still hidden show up once
+  newer items are deleted – just load again.
+- Up to 4 listings are read at once. Requests answered with 429 / 5xx are retried with a back-off
+  (honouring `Retry-After` / `x-ratelimit-reset`), and when Reddit reports fewer than 5 requests left
+  in the current rate-limit window, all workers pause until it resets.
+- Overwriting and deleting is sequential with a ~1 s pause between requests. Reddit's
+  "you are doing that too much" (`RATELIMIT`) errors are retried after the delay Reddit asks for.
+- Link and image posts cannot be edited on Reddit, and neither can archived items, so they are deleted
+  without overwriting. "Delete even if overwriting fails" (on by default) decides what happens when an
+  edit is refused for another reason.
 
-## Multiple accounts (switching without logging out)
+## Multiple accounts
 
-A Reddit session is technically tied to the `reddit.com` cookies in the given browser profile, so
-when you add an account the extension captures its cookies and stores them locally
-(`chrome.storage.local`, only in your browser). When you switch accounts it removes the current
-cookies and restores the saved ones for the chosen account — no Incognito windows or manual
-logging out needed.
+Cookies for `reddit.com` are saved to `chrome.storage.local` when you add an account and swapped when
+you switch.
 
-1. Click the account button (top right) → “+ Log in to a new account”.
-2. A new tab opens for logging in to Reddit — log in as usual (you type your password directly on
-   reddit.com, never into the extension). The extension detects the login automatically (it
-   checks every 2 seconds), closes the tab and saves the account to the list.
-3. For another account repeat steps 1–2.
-4. Later, switch accounts simply by clicking a name in the list — the extension swaps the cookies
-   and reloads the identity.
+1. Account button (top right) → "+ Sign in to a new account".
+2. Sign in in the new `reddit.com/login` tab (you enter your password directly on reddit.com). The
+   extension detects the sign-in (checks every 2 s), closes the tab and saves the account.
+3. Switching accounts changes the Reddit sign-in for the **whole browser** (that profile).
 
-**Important:** switching accounts changes the Reddit login for the **whole browser** (that
-profile/window), not just inside the extension — if you have reddit.com open in another tab, it
-will also act as the newly selected account after switching.
+## Installation from source (Chrome and Brave)
 
-## Installation
+1. Clone or download this repository.
+2. Open `chrome://extensions` (or `brave://extensions`).
+3. Turn on "Developer mode".
+4. Click "Load unpacked" → select the `extension` folder.
+5. Click the extension icon – a new tab with the app opens.
 
-### From the Chrome Web Store
+Requires Chrome 116 or newer (or a Chromium browser based on it).
 
-Install it from the store listing (once published) — works in Chrome, Brave and other
-Chromium-based browsers.
+## Repository layout
 
-### From source (Brave or Chrome)
+| Path | Contents |
+|---|---|
+| `extension/` | The extension itself – this is what gets packaged |
+| `docs/` | GitHub Pages site (project page and privacy policy) |
+| `store/` | Chrome Web Store listing texts, screenshots and promo tiles |
+| `assets/` | Source SVGs of the icon (`icon.svg` for 48/128 px, `icon-small.svg` for 16/32 px) |
+| `scripts/build.sh` | Builds `dist/comment-cleaner-for-reddit-<version>.zip` for the Web Store |
 
-1. Open `brave://extensions` (or `chrome://extensions`).
-2. Turn on “Developer mode” (top right).
-3. Click “Load unpacked” and select this folder (`comment-cleaner-for-reddit`).
-4. Click the extension icon in the toolbar — a new tab with the app opens.
+To build the Web Store package:
 
-## Usage
-
-1. Choose/log in to an account in the top right (see “Multiple accounts”) and click
-   “Load my posts and comments”.
-2. Sort by date and select items using:
-   - quick buttons (older than an hour / day / week / month),
-   - “Latest N items”,
-   - a from–to date range,
-   - “Invert selection”,
-   - or manually via the checkboxes / “Select all”.
-3. Set the text the content should be overwritten with (default `.`).
-4. Click “Overwrite and delete selected” and confirm the dialog.
-5. The extension overwrites and deletes the selected items one by one (with pauses because of
-   Reddit's rate limits) and logs the progress at the bottom of the page.
-
-## Important notes
-
-- **Irreversible.** Once overwritten and deleted, the original content cannot be restored.
-- **Link/image posts**: the Reddit API does not allow editing the body/title of such posts, so
-  they are only deleted (without overwriting) — the extension notes this in the log.
-- **Rate limits**: there are deliberate pauses (~1 s) between actions. With hundreds of items it
-  can take a while — keep the tab open and don't close the quiet `old.reddit.com` tab.
-- This is an unofficial (but common, e.g. by similar open-source tools) use of Reddit's public
-  JSON API through your own login. Reddit may change the API's behaviour at any time, which can
-  break the tool.
-- Try it on a small sample first (e.g. 2–3 old comments) before deleting in bulk.
-- **Saved account cookies** contain login session tokens — they are stored only locally in this
-  extension's `chrome.storage.local` (never sent anywhere), but anyone with access to your browser
-  profile also has access to the saved accounts. On a shared computer consider logging those
-  accounts out after use (e.g. via “Log out” directly on Reddit).
-
-## Privacy
-
-See [PRIVACY.md](PRIVACY.md). In short: no analytics, no servers of our own — the extension only
-talks to reddit.com and keeps everything in your browser.
-
-## Building the Chrome Web Store package
-
-```sh
+```bash
 ./scripts/build.sh
 ```
 
-Creates `dist/comment-cleaner-for-reddit-<version>.zip` containing only the files the extension needs.
-Store listing texts, permission justifications and graphics live in [`store/`](store/).
+## Important notes
 
-Icons are rendered from `icons/icon.svg` (48/128 px) and `icons/icon-small.svg` (16/32 px).
+- **Irreversible.** Overwritten and deleted content cannot be restored.
+- Try it first on 1–2 old comments and check on reddit.com that they are really gone.
+- With hundreds of items deleting takes a while (~2–3 s per item) – keep the extension page and the
+  quiet `old.reddit.com` tab open.
+- This uses Reddit's unofficial web API with your own sign-in; Reddit may change it at any time.
+- Saved cookies contain sign-in session tokens – they are stored only locally in this browser and are
+  never sent anywhere other than reddit.com.
 
-## Disclaimer
+Comment Cleaner for Reddit is an independent project and is not affiliated with, endorsed by or
+sponsored by Reddit, Inc. Reddit is a trademark of Reddit, Inc.
 
-Comment Cleaner for Reddit is an independent project and is not affiliated with, endorsed or sponsored by
-Reddit, Inc.
+## License
+
+[MIT](LICENSE)

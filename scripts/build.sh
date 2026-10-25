@@ -1,18 +1,15 @@
-#!/bin/sh
-# Builds the Chrome Web Store upload package: dist/comment-cleaner-for-reddit-<version>.zip
-set -eu
-cd "$(dirname "$0")/.."
+#!/usr/bin/env bash
+# Builds the Chrome Web Store package from extension/ into dist/.
+set -euo pipefail
 
-VERSION=$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' manifest.json)
-OUT="dist/comment-cleaner-for-reddit-$VERSION.zip"
+ROOT="$(cd "$(dirname "$0")/.." && pwd)"
+SRC="$ROOT/extension"
+VERSION="$(sed -n 's/.*"version": *"\([^"]*\)".*/\1/p' "$SRC/manifest.json")"
+OUT="$ROOT/dist/comment-cleaner-for-reddit-$VERSION.zip"
 
-mkdir -p dist
+mkdir -p "$ROOT/dist"
 rm -f "$OUT"
-zip -X -q "$OUT" \
-  manifest.json \
-  popup.html popup.js \
-  app.html app.js app.css \
-  icons/icon16.png icons/icon32.png icons/icon48.png icons/icon128.png
-
+cd "$SRC"
+zip -X -q -r "$OUT" . -x '.*' -x '*/.*'
 echo "Built $OUT"
 unzip -l "$OUT"

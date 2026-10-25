@@ -9,15 +9,15 @@
 <header class="topbar">
   <h1>Comment Cleaner for Reddit</h1>
   <div class="identity-wrap">
-    <button id="identityBtn" class="identity-btn">Not logged in ▾</button>
+    <button id="identityBtn" class="identity-btn">Not signed in ▾</button>
     <div id="accountMenu" class="account-menu" hidden>
       <div id="accountList" class="account-list"></div>
       <div class="account-menu-actions">
-        <button id="addAccountBtn" class="btn small">+ Log in to a new account</button>
-        <button id="cancelLoginBtn" class="btn small" hidden>Stop waiting</button>
+        <button id="addAccountBtn" class="btn small">+ Sign in to a new account</button>
+        <button id="cancelLoginBtn" class="btn small" hidden>Cancel waiting</button>
         <p id="loginHint" class="hint" hidden>
-          Log in exactly in the newly opened reddit.com/login tab (not in another tab or an
-          Incognito window — those use a different login session).
+          Sign in in exactly the newly opened reddit.com/login tab (not another tab or an
+          Incognito window — those have a separate sign-in).
         </p>
       </div>
     </div>
@@ -27,8 +27,18 @@
 <section class="panel controls" id="controlsPanel">
   <div class="control-row">
     <button id="loadBtn" class="btn primary">Load my posts and comments</button>
+    <button id="stopLoadBtn" class="btn small" hidden>Stop loading</button>
+    <label class="check-label"><input type="checkbox" id="deepScanInput" checked> Deep scan (reach past the 1000-item limit)</label>
     <span id="statusText" class="status-text"></span>
   </div>
+  <div id="progressWrap" class="progress-wrap" hidden>
+    <div class="progress-bar"><div id="progressFill" class="progress-fill"></div></div>
+    <div class="progress-meta">
+      <span id="progressText"></span>
+      <span id="progressEta" class="progress-eta"></span>
+    </div>
+  </div>
+  <p class="hint">Reddit lists at most about 1000 items per sort order. When you have more, deep scan also reads your comments and posts sorted by top, controversial and hot (all time and past year) and merges the results, which usually reaches much older items. Anything still hidden appears once newer items are deleted — just load again.</p>
 
   <div class="control-row" id="filterRow" hidden>
     <div class="filter-group">
@@ -74,6 +84,7 @@
       <label for="replacementText">Text to overwrite content with before deleting</label>
       <input type="text" id="replacementText" class="input-wide" value=".">
       <p class="hint">Applies only to comments and text (self) posts. Link/image posts are just deleted (Reddit does not allow editing their title, not even via the API).</p>
+      <label class="check-label"><input type="checkbox" id="deleteOnEditFailInput" checked> Delete even if overwriting fails (e.g. archived or locked items)</label>
     </div>
   </div>
 
